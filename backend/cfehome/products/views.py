@@ -49,7 +49,7 @@ class ProductDeleteAPIView(generics.DestroyAPIView):
 class ProductMixinView(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = Product.objects.all()
     serializer = ProductSerializer
-
+    # ...
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
