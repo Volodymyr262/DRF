@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework import generics
+from rest_framework import generics, mixins
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
@@ -25,18 +25,37 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     # lookup_field = 'pk'
 
 
-class ProductListAPIView(generics.RetrieveAPIView):
-    '''
-    Not gonna use
-    '''
-
+class ProductUpdateAPIView(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    # lookup_field = 'pk'
+    lookup_field = 'pk'
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if not instance.content:
+            instance.content = instance.title
+
+
+class ProductDeleteAPIView(generics.DestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+
+    def perform_destroy(self, instance):
+        # instance
+        super().perform_destroy(instance)
+
+
+class ProductMixinView(mixins.ListModelMixin, generics.GenericAPIView):
+    queryset = Product.objects.all()
+    serializer = ProductSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 @api_view(['GET', 'POST'])
-def product_alt_view(request,pk=None, *args, **kwargs):
+def product_alt_view(request, pk=None, *args, **kwargs):
     method = request.method
 
     if method == "GET":
@@ -47,7 +66,9 @@ def product_alt_view(request,pk=None, *args, **kwargs):
         queryset = Product.objects.all()
         data = ProductSerializer(queryset, many=True).data
         return Response(data)
+
     if method == "POST":
+        # create an item
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             title = serializer.validated_data.get('title')
