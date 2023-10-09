@@ -46,13 +46,29 @@ class ProductDeleteAPIView(generics.DestroyAPIView):
         super().perform_destroy(instance)
 
 
-class ProductMixinView(mixins.ListModelMixin, generics.GenericAPIView):
+class ProductMixinView(mixins.ListModelMixin,
+                       generics.GenericAPIView,
+                       mixins.RetrieveModelMixin,
+                       mixins.CreateModelMixin):
     queryset = Product.objects.all()
-    serializer = ProductSerializer
-    # ...
-    def get(self, request, *args, **kwargs):
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+
+    def get(self, request, pk=None, *args, **kwargs):
+        pk = kwargs.get('pk')
+        if pk is not None:
+            return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data.get('title')
+        content = serializer.validated_data.get('content')
+        if content is None:
+            content = 'this a single view g=doing cool stuff'
+        serializer.save(content=content)
 
 @api_view(['GET', 'POST'])
 def product_alt_view(request, pk=None, *args, **kwargs):
