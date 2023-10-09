@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
@@ -10,6 +10,8 @@ from .serializers import ProductSerializer
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    authentication_classes = [authentication.SessionAuthentication]
+    permissions_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         title = serializer.validated_data.get('title')
