@@ -5,13 +5,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from .models import Product
 from .serializers import ProductSerializer
+from .permissions import IsStaffEditorPermissions
 
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication]
-    permissions_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permissions_classes = [IsStaffEditorPermissions]
 
     def perform_create(self, serializer):
         title = serializer.validated_data.get('title')
