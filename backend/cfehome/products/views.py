@@ -7,12 +7,9 @@ from .models import Product
 from .serializers import ProductSerializer
 from .permissions import IsStaffEditorPermissions
 
-
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication,
-                              authentication.TokenAuthentication]
     permissions_classes = [IsStaffEditorPermissions]
 
     def perform_create(self, serializer):
