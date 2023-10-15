@@ -1,16 +1,15 @@
-from django.http import Http404
-from rest_framework import generics, mixins, permissions, authentication
+from rest_framework import generics, mixins
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from .models import Product
 from .serializers import ProductSerializer
-from .permissions import IsStaffEditorPermissions
+from api.mixins import StaffEditorPermissionMixin
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+
+class ProductListCreateAPIView(generics.ListCreateAPIView, StaffEditorPermissionMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permissions_classes = [IsStaffEditorPermissions]
 
     def perform_create(self, serializer):
         title = serializer.validated_data.get('title')
@@ -20,13 +19,13 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(content=content)
 
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
+class ProductDetailAPIView(generics.RetrieveAPIView, StaffEditorPermissionMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     # lookup_field = 'pk'
 
 
-class ProductUpdateAPIView(generics.UpdateAPIView):
+class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -70,6 +69,7 @@ class ProductMixinView(mixins.ListModelMixin,
         if content is None:
             content = 'this a single view g=doing cool stuff'
         serializer.save(content=content)
+
 
 @api_view(['GET', 'POST'])
 def product_alt_view(request, pk=None, *args, **kwargs):
