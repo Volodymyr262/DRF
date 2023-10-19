@@ -7,6 +7,7 @@ from .serializers import ProductSerializer
 from api.mixins import StaffEditorPermissionMixin
 
 
+# create product view
 class ProductListCreateAPIView(generics.ListCreateAPIView, StaffEditorPermissionMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -25,6 +26,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView, StaffEditorPermissionMixin)
     # lookup_field = 'pk'
 
 
+# update product view
 class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -36,6 +38,7 @@ class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin):
             instance.content = instance.title
 
 
+# DELETE product view
 class ProductDeleteAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -71,6 +74,7 @@ class ProductMixinView(mixins.ListModelMixin,
         serializer.save(content=content)
 
 
+# unused, just for example
 @api_view(['GET', 'POST'])
 def product_alt_view(request, pk=None, *args, **kwargs):
     method = request.method
