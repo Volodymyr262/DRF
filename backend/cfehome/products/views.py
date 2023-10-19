@@ -73,7 +73,7 @@ class ProductMixinView(mixins.ListModelMixin,
             content = 'this a single view g=doing cool stuff'
         serializer.save(content=content)
 
-
+x =0
 # unused, just for example
 @api_view(['GET', 'POST'])
 def product_alt_view(request, pk=None, *args, **kwargs):
