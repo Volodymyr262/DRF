@@ -4,11 +4,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from .models import Product
 from .serializers import ProductSerializer
-from api.mixins import StaffEditorPermissionMixin
+from api.mixins import StaffEditorPermissionMixin, UserQuerysetMixin
 
 
 # create product view
-class ProductListCreateAPIView(generics.ListCreateAPIView, StaffEditorPermissionMixin):
+class ProductListCreateAPIView(generics.ListCreateAPIView, StaffEditorPermissionMixin
+                              , UserQuerysetMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -20,14 +21,14 @@ class ProductListCreateAPIView(generics.ListCreateAPIView, StaffEditorPermission
         serializer.save(content=content)
 
 
-class ProductDetailAPIView(generics.RetrieveAPIView, StaffEditorPermissionMixin):
+class ProductDetailAPIView(generics.RetrieveAPIView, StaffEditorPermissionMixin, UserQuerysetMixin ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     # lookup_field = 'pk'
 
 
 # update product view
-class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin):
+class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin, UserQuerysetMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -39,7 +40,7 @@ class ProductUpdateAPIView(generics.UpdateAPIView, StaffEditorPermissionMixin):
 
 
 # DELETE product view
-class ProductDeleteAPIView(generics.DestroyAPIView):
+class ProductDeleteAPIView(generics.DestroyAPIView, UserQuerysetMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -52,7 +53,8 @@ class ProductDeleteAPIView(generics.DestroyAPIView):
 class ProductMixinView(mixins.ListModelMixin,
                        generics.GenericAPIView,
                        mixins.RetrieveModelMixin,
-                       mixins.CreateModelMixin):
+                       mixins.CreateModelMixin,
+                       UserQuerysetMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -71,7 +73,15 @@ class ProductMixinView(mixins.ListModelMixin,
         content = serializer.validated_data.get('content')
         if content is None:
             content = 'this a single view g=doing cool stuff'
-        serializer.save(content=content)
+        serializer.save(user=self.request.user, content=content)
+
+    # def get_queryset(self):
+    #     qs = super().get_queryset(self, *args, **kwargs)
+    #     request = self.request
+    #     user = request.user
+    #     if not user.is_authenticated:
+    #         return Product.objects.none()
+    #     return qs.filter(user=request.user)
 
 
 # unused, just for example
