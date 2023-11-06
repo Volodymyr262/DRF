@@ -6,7 +6,7 @@ from api.serializers import UserPublicSerializer
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    user = UserPublicSerializer(read_only=True)
+    owner = UserPublicSerializer(source='user', read_only=True)
     my_user_data = serializers.SerializerMethodField(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='product-detail',
                                                lookup_field='pk')
@@ -16,7 +16,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-                  'user',
+                  'owner',
                   'url',
                   'edit_url',
                   'pk',
